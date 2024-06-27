@@ -44,4 +44,25 @@ class BakingViewModel : ViewModel() {
             }
         }
     }
+
+    fun sendPrompt(
+        prompt: String
+    ) {
+        _uiState.value = UiState.Loading
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = generativeModel.generateContent(
+                    content {
+                        text(prompt)
+                    }
+                )
+                response.text?.let { outputContent ->
+                    _uiState.value = UiState.Success(outputContent)
+                }
+            } catch (e: Exception) {
+                _uiState.value = UiState.Error(e.localizedMessage ?: "")
+            }
+        }
+    }
 }
